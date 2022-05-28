@@ -10,7 +10,6 @@ export async function getCustomers(req,res){
                 res.status(404).send("Ainda não há clientes");
                 return
             }
-            console.log(customers.rows)
             res.send(customers.rows);
         }else{
             const customersCPF = await db.query(`SELECT * FROM customers WHERE cpf LIKE '$1%'`,[cpf]);
@@ -21,7 +20,8 @@ export async function getCustomers(req,res){
             res.send(customersCPF.rows);
         }       
    }catch(e){
-        console.error(e);
+    console.log(e)
+    res.status(500)
    }
 }
 
@@ -36,7 +36,8 @@ export async function getOnlyCustomer(req,res){
         }
         res.status(200).send(customer.rows);
     }catch(e){
-        console.error(e);
+        console.log(e)
+        res.status(500)
     }
 }
 
@@ -54,26 +55,27 @@ export async function postCustomers(req,res){
         return
     }
     try{
-        const verifyCpf = await db.query(`SELECT FROM customers WHERE cpf=$1`,[req.body.cpf]);
+        const verifyCpf = await db.query(`SELECT FROM customers WHERE cpf=$1`,[cpf]);
         if(verifyCpf.rows.length!==0){
             res.status(409).send("CPF já cadastrado");
             return
         }
-        await db.query(`INSERT INTO customers (name,phone,cpf,birthday) VALUES ($1,$2,$3,$4)`, [req.body.name,req.body.phone,req.body.cpf,req.body.birthday])
+        await db.query(`INSERT INTO customers (name,phone,cpf,birthday) VALUES ($1,$2,$3,$4)`, [name,phone,cpf,birthday])
         res.status(201).send("cadastro realizado com sucesso");
     }catch(e){
-        console.error(e)
+        console.log(e)
+        res.status(500)
     }
 }
 
-export async function putCustomers(req,res){
+export async function putCustomers(req,res){ //TOFIX: birthday type 
     const id = parseInt(req.params.id)
     const {name,phone,cpf,birthday} = req.body    
     const customerSchema = joi.object({
         name: joi.string().required(),
         phone: joi.string().min(10).max(11).required(),
         cpf:joi.string().min(11).max(11).required(),
-        birthday: joi.string().isoDate().required()
+        birthday: joi.string().pattern(/(\d{4})[-](\d{2})[-](\d{2})/).required()
     });
     const {error} = customerSchema.validate({name,phone,cpf,birthday})
     if(error){
@@ -86,11 +88,13 @@ export async function putCustomers(req,res){
             res.status(409).send("CPF já cadastrado");
             return
         }
-        console.log(birthday)
-        const updatedCostumer =  await db.query(`UPDATE customers SET name='$1', phone='$2', cpf='$3', birthday='$4' WHERE id=$5`,[name,phone,cpf,birthday,id])
+        const isoDate = new Date(birthday)
+        console.log(typeof isoDate)       
+        const updatedCostumer =  await db.query(`UPDATE customers SET name='$1', phone='$2', cpf='$3', birthday='$4' WHERE id=$5`,[name,phone,cpf,isoDate,id])
         res.send(updatedCostumer)
     }catch(e){
-        console.error(e)
+        console.log(e)
+        res.status(500)
     }
 
 }

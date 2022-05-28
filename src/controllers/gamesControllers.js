@@ -10,7 +10,8 @@ export async function getGames (req,res){
         }
         res.send(games.rows)
     }catch(e){
-        console.error(e)
+        console.log(e)
+        res.status(500)
     }
 }
 
@@ -38,6 +39,7 @@ export async function postGames (req,res){
         await db.query(`INSERT INTO games (name,image,"stockTotal","categoryId","pricePerDay") VALUES ($1,$2,$3,$4,$5)`,[body.name,body.image,body.stockTotal,body.categoryId,body.pricePerDay])
         res.sendStatus(201)        
     }catch(e){
-        console.error(e)
+        console.log(e)
+        res.status(500)
     }
 }

@@ -10,7 +10,8 @@ export async function getCathegories(req,res){
         }
         res.status(200).send(cathegories)
     }catch(e){
-        console.error(e)
+        console.log(e)
+        res.status(500)
     }
 }
 
@@ -31,6 +32,7 @@ export async function postCathegories(req,res){
     await db.query(`INSERT INTO categories (name) VALUES ($1)`,[name]);
     res.sendStatus(201);
     }catch(e){
-        console.error(e);
+        console.log(e)
+        res.status(500)
     }
 }
