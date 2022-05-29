@@ -9,4 +9,5 @@ customerRouter.get('/customers/:id', getOnlyCustomer);
 customerRouter.post('/customers', postCustomers);
 customerRouter.put('/customers/:id', putCustomers)
 
+
 export default customerRouter;

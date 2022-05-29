@@ -14,7 +14,9 @@ export async function getGames (req,res){ //FIX: como usar vaiável com o % no I
                 return
             }
         }else{
-            const games = await db.query(`SELECT * FROM games`)
+            const games = await db.query(`SELECT games.*, categories.name as "categoryName" FROM games
+            JOIN categories 
+            ON games."categoryId" = categories.id`)
             if(games.rows.length===0){
                 res.status(404).send("Ainda não há registros")
                 return

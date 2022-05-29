@@ -21,23 +21,22 @@ export async function getCustomers(req,res){
         }       
    }catch(e){
     console.log(e)
-    res.status(500)
+    res.sendStatus(500)
    }
 }
 
 export async function getOnlyCustomer(req,res){
     const id = parseInt(req.params.id)
-    console.log(id)     
     try{
         const  customer = await db.query(`SELECT * FROM customers WHERE id=$1`,[id]);
         if(customer.rows.length===0){
             res.status(404).send("Cliente não encontrado");
             return
         }
-        res.status(200).send(customer.rows);
+        res.status(200).send(customer.rows[0]);
     }catch(e){
         console.log(e)
-        res.status(500)
+        res.sendStatus(500)
     }
 }
 
@@ -64,7 +63,7 @@ export async function postCustomers(req,res){
         res.status(201).send("cadastro realizado com sucesso");
     }catch(e){
         console.log(e)
-        res.status(500)
+        res.sendStatus(500)
     }
 }
 
@@ -92,7 +91,7 @@ export async function putCustomers(req,res){
         res.status(200).send("Dados alterados")
     }catch(e){
         console.log(e)
-        res.status(500)
+        res.sendStatus(500)
     }
 
 }

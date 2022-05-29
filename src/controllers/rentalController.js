@@ -6,10 +6,8 @@ export async function getRentals(req,res){
     
     try{
         if(id){
-            console.log("teste" , id)
             const rentals = await db.query(`SELECT * FROM rentals WHERE id=$1`,[id]) 
             if(rentals.rows.length===0){
-            console.log("teste2" , id)
             res.status(404).send("Usuário não encontrado")
             return
             }
@@ -24,16 +22,39 @@ export async function getRentals(req,res){
             res.send(games.rows)
             return
         }else{
-            const allRentals = await db.query(`SELECT * FROM rentals`)
-            if(allRentals.rows.length===0){
+            const { rows: allRentals} = await db.query(`SELECT rentals.*, games.id as "gameId", games.name as "gameName", games."categoryId" as "gameCategoryId", customers.name as "customerName", customers.id as "customerId", categories.id as "categoryId", categories.name as "categoryName" FROM rentals
+            JOIN games
+            ON rentals."gameId" = games.id
+            JOIN customers
+            ON rentals."customerId" = customers.id
+            JOIN categories
+            ON games."categoryId" = categories.id`)
+            if(!allRentals.length){
                 res.status(404).send("Ainda não há registros de aluguel")
                 return
             }
-            res.status(200).send(allRentals.rows)
+            const response = allRentals.map((rentals)=>{
+               return(
+                {
+                    ...rentals,
+                    game: {
+                      id: rentals.gameId,
+                      name: rentals.gameName,
+                      categoryId: rentals.categoryId,
+                      categoryName: rentals.categoryName,
+                    },
+                    customer: {
+                        id: rentals.customerId,
+                        name: rentals.customerName,
+                    }
+                }
+               ) 
+            })
+            res.status(200).send(response)
         }       
     }catch(e){        
         console.log(e)
-        res.status(500)
+        res.sendStatus(500)
     }
 }
 
@@ -68,14 +89,13 @@ export async function postRentals(req,res){
             return
         }
         const rentDate = new Date()
-        console.log(rentDate)
         const pricePerDay = await db.query(`SELECT "pricePerDay" FROM games WHERE id=$1`,[gameId])
         const originalPrice = (pricePerDay.rows[0].pricePerDay)*daysRented   
         await db.query(`INSERT INTO rentals ("customerId","gameId","rentDate","daysRented","returnDate","originalPrice","delayFee") VALUES ($1,$2,$3,$4,$5,$6,$7)`,[customerId, gameId,rentDate, daysRented,null,originalPrice,null])
         res.sendStatus(201)
     }catch(e){
         console.error(e)
-        res.status(500)        
+        res.sendStatus(500)        
     }
 }
 

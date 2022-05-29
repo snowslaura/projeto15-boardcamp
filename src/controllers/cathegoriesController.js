@@ -11,7 +11,7 @@ export async function getCathegories(req,res){
         res.status(200).send(cathegories.rows)
     }catch(e){
         console.log(e)
-        res.status(500)
+        res.sendSstatus(500)
     }
 }
 
@@ -33,6 +33,6 @@ export async function postCathegories(req,res){
     res.sendStatus(201);
     }catch(e){
         console.log(e)
-        res.status(500)
+        res.sendStatus(500)
     }
 }
