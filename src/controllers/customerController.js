@@ -68,14 +68,14 @@ export async function postCustomers(req,res){
     }
 }
 
-export async function putCustomers(req,res){ //TOFIX: birthday type 
+export async function putCustomers(req,res){ 
     const id = parseInt(req.params.id)
     const {name,phone,cpf,birthday} = req.body    
     const customerSchema = joi.object({
         name: joi.string().required(),
         phone: joi.string().min(10).max(11).required(),
         cpf:joi.string().min(11).max(11).required(),
-        birthday: joi.string().pattern(/(\d{4})[-](\d{2})[-](\d{2})/).required()
+        birthday: joi.string().isoDate().required()
     });
     const {error} = customerSchema.validate({name,phone,cpf,birthday})
     if(error){
@@ -87,11 +87,9 @@ export async function putCustomers(req,res){ //TOFIX: birthday type
         if(verifyCpf.rows.length!==0){
             res.status(409).send("CPF já cadastrado");
             return
-        }
-        const isoDate = new Date(birthday)
-        console.log(typeof isoDate)       
-        const updatedCostumer =  await db.query(`UPDATE customers SET name='$1', phone='$2', cpf='$3', birthday='$4' WHERE id=$5`,[name,phone,cpf,isoDate,id])
-        res.send(updatedCostumer)
+        }     
+        const updatedCostumer =  await db.query(`UPDATE customers SET name=$1, phone=$2, cpf=$3, birthday=$4 WHERE id=$5`,[name,phone,cpf,birthday,id])
+        res.status(200).send("Dados alterados")
     }catch(e){
         console.log(e)
         res.status(500)

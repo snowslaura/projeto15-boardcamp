@@ -8,7 +8,7 @@ export async function getCathegories(req,res){
             res.status(404).send("Ainda não há registros")
             return
         }
-        res.status(200).send(cathegories)
+        res.status(200).send(cathegories.rows)
     }catch(e){
         console.log(e)
         res.status(500)
