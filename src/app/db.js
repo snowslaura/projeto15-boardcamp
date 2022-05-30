@@ -4,18 +4,16 @@ dotenv.config();
 
 const {Pool} = pg;
 
-const user = 'bootcamp_role';
-const password = process.env.PASSWORD;
-const host = 'localhost';
-const port = 5432;
-const database= process.env.DATABASE_URL;
+const databaseConfig = {
+    connectionString: process.env.DATA_BASE_URL
+};
 
-const db = new Pool({
-    user,
-    password,
-    host,
-    port,
-    database
-});
+if(process.env.MODE === "PROD"){
+    databaseConfig.ssl = {
+        rejectUnauthorized: false
+    }
+}
+
+const db = new Pool(databaseConfig)
 
 export default db;
